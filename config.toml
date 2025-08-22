@@ -1,0 +1,16 @@
+[providers]
+# Anthropic provider configuration
+[providers.anthropic]
+base_url = "https://api.moonshot.cn/anthropic"
+
+
+[server]
+host = "127.0.0.1"
+port = 8080
+
+[database]
+url="./sessions.db"
+
+[logging]
+level = "info"
+format = "text"  # "json" or "text"

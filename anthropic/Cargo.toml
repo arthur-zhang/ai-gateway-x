@@ -1,0 +1,23 @@
+[package]
+name = "anthropic"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.98"
+either = "1.15.0"
+futures = "0.3.31"
+futures-core = "0.3.31"
+http = "1.3.1"
+reqwest = {version = "0.12.22", features=["stream","json","multipart"] }
+serde = { version = "1.0.219",features = ["derive"] }
+serde_json = "1.0.142"
+thiserror = "2.0.12"
+tokio = {version="1.47.1",features=["full"]}
+llm-common = { path = "../llm-common" }
+log = "0.4.27"
+partial-json-fixer = "0.5.3"
+
+strum = { version = "0.27.2" ,features = ["derive"] }
+tokio-stream = "0.1"
+bytes = "1.10.1"
