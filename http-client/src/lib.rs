@@ -1,5 +1,5 @@
 mod async_body;
 
-pub trait HttpClient{
+pub trait HttpClient {
     // async fn send()
 }

@@ -12,7 +12,7 @@ setup:
 
 # 启动后端服务 (开发模式)
 run:
-    DATABASE_URL="sqlite:./sessions.db" cargo run --bin gateway
+    cargo run --bin gateway
 
 # 启动前端开发服务器
 web:

@@ -19,8 +19,7 @@ cd ai-gateway-x
 # 2. 一键环境检查和初始化
 ./setup.sh
 
-# 3. 配置 API Key
-export ANTHROPIC_API_KEY="sk-ant-your-api-key-here"
+# 3. 配置 API Key（在 config.toml 中配置）
 
 # 4. 启动服务
 just run    # 后端服务
@@ -52,23 +51,24 @@ just version        # 查看工具版本信息
 
 ## 🔧 配置你的应用使用网关
 
-**Python 示例：**
-```python
+**客户端配置示例：**
+```python  
+# Python 示例
 import anthropic
 
-# 修改你的应用，使用网关地址
 client = anthropic.Anthropic(
-    api_key="sk-ant-your-api-key",
+    api_key="sk-ant-your-api-key",  # 与 config.toml 中配置的相同
     base_url="http://127.0.0.1:8080"  # 网关地址
 )
 
-# 正常使用，对话会自动被监控
 response = client.messages.create(
     model="claude-3-sonnet-20240229",
     max_tokens=1000,
     messages=[{"role": "user", "content": "Hello"}]
 )
 ```
+
+**其他语言也类似，只需将 base_url 设置为网关地址，API Key 与 config.toml 中配置的保持一致。**
 
 **测试网关是否工作：**
 ```bash

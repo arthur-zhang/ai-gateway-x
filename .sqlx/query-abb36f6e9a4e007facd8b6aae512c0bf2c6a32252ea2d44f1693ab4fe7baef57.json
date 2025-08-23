@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            UPDATE sessions \n            SET  request_id = ?, model = ?, is_streaming = ?, token_usage_input = ?, token_usage_output = ?, \n                stop_reason = ?, response = ?, http_req_headers = ?, http_resp_headers = ?,\n                http_status_code = ?, completed_at = ?, status = ?\n            WHERE id = ?\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 13
+    },
+    "nullable": []
+  },
+  "hash": "abb36f6e9a4e007facd8b6aae512c0bf2c6a32252ea2d44f1693ab4fe7baef57"
+}

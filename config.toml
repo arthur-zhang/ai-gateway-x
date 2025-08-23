@@ -1,7 +1,8 @@
 [providers]
 # Anthropic provider configuration
 [providers.anthropic]
-base_url = "https://api.moonshot.cn/anthropic"
+base_url = "https://as.ctok.ai/api"
+api_key = "sk-ant-your-api-key-here"
 
 
 [server]

@@ -1,4 +1,4 @@
-use crate::{Event, Response, ResponseContent, ContentDelta, Usage, Role};
+use crate::{ContentDelta, Event, Response, ResponseContent, Role, Usage};
 use std::collections::HashMap;
 
 pub struct StreamingResponseBuilder {
@@ -31,7 +31,7 @@ impl StreamingResponseBuilder {
             content_blocks: HashMap::new(),
         }
     }
-    pub fn set_resp(&mut self, resp:Response) {
+    pub fn set_resp(&mut self, resp: Response) {
         self.response = resp;
     }
 
@@ -46,11 +46,16 @@ impl StreamingResponseBuilder {
                 self.response.stop_sequence = message.stop_sequence;
                 self.update_usage(message.usage);
             }
-            Event::ContentBlockStart { index, content_block } => {
+            Event::ContentBlockStart {
+                index,
+                content_block,
+            } => {
                 let content_type = match &content_block {
                     ResponseContent::Text { .. } => ContentType::Text,
                     ResponseContent::Thinking { .. } => ContentType::Thinking,
-                    ResponseContent::RedactedThinking { data } => ContentType::RedactedThinking(data.clone()),
+                    ResponseContent::RedactedThinking { data } => {
+                        ContentType::RedactedThinking(data.clone())
+                    }
                     ResponseContent::ToolUse { id, name, .. } => {
                         let mut builder = ResponseContentBuilder::new(ContentType::ToolUse);
                         builder.tool_use_id = Some(id.clone());
@@ -61,13 +66,13 @@ impl StreamingResponseBuilder {
                 };
 
                 let mut builder = ResponseContentBuilder::new(content_type);
-                
+
                 // Initialize with any starting content
                 match content_block {
                     ResponseContent::Text { text } => builder.text_content = text,
                     ResponseContent::Thinking { thinking } => builder.thinking_content = thinking,
-                    ResponseContent::RedactedThinking { .. } => {}, // data already stored in content_type
-                    ResponseContent::ToolUse { .. } => {}, // handled above
+                    ResponseContent::RedactedThinking { .. } => {} // data already stored in content_type
+                    ResponseContent::ToolUse { .. } => {}          // handled above
                 }
 
                 self.content_blocks.insert(index, builder);
@@ -172,9 +177,7 @@ impl ResponseContentBuilder {
                     None
                 }
             }
-            ContentType::RedactedThinking(data) => {
-                Some(ResponseContent::RedactedThinking { data })
-            }
+            ContentType::RedactedThinking(data) => Some(ResponseContent::RedactedThinking { data }),
             ContentType::ToolUse => {
                 if let (Some(id), Some(name)) = (self.tool_use_id, self.tool_use_name) {
                     let input = if self.tool_use_input_json.trim().is_empty() {

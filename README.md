@@ -30,8 +30,7 @@ cd ai-gateway-x
 # 自动检查环境并安装依赖
 ./setup.sh
 
-# 配置 API Key
-export ANTHROPIC_API_KEY="sk-ant-your-key"
+# 配置完成，API Key 已在 config.toml 中配置
 
 # 启动服务
 just run    # 后端服务
@@ -62,9 +61,10 @@ ai-gateway-x/
 
 ```toml
 [providers]
-# Anthropic provider configuration
+# Anthropic provider configuration  
 [providers.anthropic]
-base_url = "https://api.anthropic.com"  # 官方 Claude API 端点
+base_url = "https://as.ctok.ai/api"
+api_key = "sk-ant-your-api-key-here"
 
 [server]
 host = "127.0.0.1"
@@ -78,19 +78,12 @@ level = "info"
 format = "text"  # "json" or "text"
 ```
 
-### 2. API Key 配置
+**配置说明：**
+- 所有配置项均在 `config.toml` 文件中设置
+- API Key 直接在配置文件中的 `providers.anthropic.api_key` 字段配置
+- 无需设置环境变量
 
-**设置环境变量（推荐）：**
-```bash
-export ANTHROPIC_API_KEY="sk-ant-api-key-here"
-```
-
-**或在启动时指定：**
-```bash
-ANTHROPIC_API_KEY="sk-ant-api-key-here" just run
-```
-
-### 3. 配置客户端应用
+### 2. 配置客户端应用
 
 要监控 Claude 对话，需要将你的应用配置为使用网关：
 
@@ -143,12 +136,13 @@ just help          # 查看所有命令
 just deploy-build
 
 # 启动生产服务  
-ANTHROPIC_API_KEY="your-key" just deploy
+just deploy
 ```
 
-**环境变量：**
-- `ANTHROPIC_API_KEY` - Claude API Key
-- `DATABASE_URL` - 数据库路径（可选，默认 sqlite:./sessions.db）
+**配置说明：**
+- 所有配置项均在 `config.toml` 文件中设置
+- 包括 API Key、数据库路径、服务器端口等
+- 生产环境请确保 `config.toml` 中的配置正确
 
 **维护命令：**
 ```bash

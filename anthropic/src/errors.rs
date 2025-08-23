@@ -2,15 +2,14 @@ use std::convert::Into;
 use std::str::FromStr;
 use std::time::Duration;
 
+use llm_common::{LanguageModelCompletionError, LanguageModelProviderName};
 use serde::{Deserialize, Serialize};
 use strum::EnumString;
 use thiserror::Error;
-use llm_common::{LanguageModelCompletionError, LanguageModelProviderName};
 
 pub type AnthropicResult<T> = Result<T, AnthropicError>;
 
-#[derive(Debug)]
-#[derive(thiserror::Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum AnthropicError {
     /// Failed to serialize the HTTP request body to JSON
     #[error("Failed to serialize the HTTP request body to JSON: {0}")]
@@ -85,19 +84,28 @@ pub fn parse_prompt_too_long(message: &str) -> Option<u64> {
         .ok()
 }
 
-impl Into<LanguageModelCompletionError> for AnthropicError{
+impl Into<LanguageModelCompletionError> for AnthropicError {
     fn into(self) -> LanguageModelCompletionError {
-        let ANTHROPIC_PROVIDER_NAME: LanguageModelProviderName = LanguageModelProviderName("anthropic".into());
+        let anthropic_provider_name: LanguageModelProviderName =
+            LanguageModelProviderName("anthropic".into());
 
-        let provider = ANTHROPIC_PROVIDER_NAME;
+        let provider = anthropic_provider_name;
         match self {
-            AnthropicError::SerializeRequest(error) => LanguageModelCompletionError::SerializeRequest { provider, error },
-            AnthropicError::BuildRequestBody(error) => LanguageModelCompletionError::BuildRequestBody { provider, error },
-            AnthropicError::HttpSend(error) => LanguageModelCompletionError::HttpSend { provider, error },
+            AnthropicError::SerializeRequest(error) => {
+                LanguageModelCompletionError::SerializeRequest { provider, error }
+            }
+            AnthropicError::BuildRequestBody(error) => {
+                LanguageModelCompletionError::BuildRequestBody { provider, error }
+            }
+            AnthropicError::HttpSend(error) => {
+                LanguageModelCompletionError::HttpSend { provider, error }
+            }
             AnthropicError::DeserializeResponse(error) => {
                 LanguageModelCompletionError::DeserializeResponse { provider, error }
             }
-            AnthropicError::ReadResponse(error) => LanguageModelCompletionError::ApiReadResponseError { provider, error },
+            AnthropicError::ReadResponse(error) => {
+                LanguageModelCompletionError::ApiReadResponseError { provider, error }
+            }
             AnthropicError::HttpResponseError {
                 status_code,
                 message,
@@ -106,19 +114,22 @@ impl Into<LanguageModelCompletionError> for AnthropicError{
                 status_code,
                 message,
             },
-            AnthropicError::RateLimit { retry_after } => LanguageModelCompletionError::RateLimitExceeded {
-                provider,
-                retry_after: Some(retry_after),
-            },
-            AnthropicError::ServerOverloaded { retry_after } => LanguageModelCompletionError::ServerOverloaded {
-                provider,
-                retry_after: retry_after,
-            },
+            AnthropicError::RateLimit { retry_after } => {
+                LanguageModelCompletionError::RateLimitExceeded {
+                    provider,
+                    retry_after: Some(retry_after),
+                }
+            }
+            AnthropicError::ServerOverloaded { retry_after } => {
+                LanguageModelCompletionError::ServerOverloaded {
+                    provider,
+                    retry_after: retry_after,
+                }
+            }
             AnthropicError::ApiError(api_error) => api_error.into(),
         }
     }
 }
-
 
 /// An Anthropic API error code.
 /// <https://docs.anthropic.com/en/api/errors#http-errors>
@@ -143,12 +154,13 @@ pub enum ApiErrorCode {
     OverloadedError,
 }
 
-impl Into<LanguageModelCompletionError> for ApiError{
+impl Into<LanguageModelCompletionError> for ApiError {
     fn into(self) -> LanguageModelCompletionError {
         use ApiErrorCode::*;
-        let ANTHROPIC_PROVIDER_NAME: LanguageModelProviderName = LanguageModelProviderName("anthropic".into());
+        let anthropic_provider_name: LanguageModelProviderName =
+            LanguageModelProviderName("anthropic".into());
 
-        let provider = ANTHROPIC_PROVIDER_NAME;
+        let provider = anthropic_provider_name;
         match self.code() {
             Some(code) => match code {
                 InvalidRequestError => LanguageModelCompletionError::BadRequestFormat {

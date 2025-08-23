@@ -102,13 +102,20 @@ impl AnthropicProvider {
             } else {
                 println!("send non streaming");
                 // let resp = serde_json::from_str::<Response>(&response.text().await.unwrap()).unwrap();
-                let resp = upstream_response.bytes().await.map_err(|e| AnthropicError::HttpSend(e.into()))?;
+                let resp = upstream_response
+                    .bytes()
+                    .await
+                    .map_err(|e| AnthropicError::HttpSend(e.into()))?;
                 // let resp = upstream_response
                 //     .json::<Response>()
                 //     .await
                 //     .map_err(|e| AnthropicError::HttpSend(e.into()))?;
-                let parsed_resp = serde_json::from_slice::<Response>(&resp).map_err(|e| AnthropicError::HttpSend(e.into()))?;
-                if let Err(e) = tx.send(Ok(RespEvent::NonStreaming(parsed_resp.clone()))).await {
+                let parsed_resp = serde_json::from_slice::<Response>(&resp)
+                    .map_err(|e| AnthropicError::HttpSend(e.into()))?;
+                if let Err(e) = tx
+                    .send(Ok(RespEvent::NonStreaming(parsed_resp.clone())))
+                    .await
+                {
                     eprintln!("Failed to send non-streaming response: {:?}", e);
                 }
                 let resp = downstream_response
