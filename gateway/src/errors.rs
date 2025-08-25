@@ -1,13 +1,12 @@
+use anthropic::AnthropicError;
 use axum::{
+    Json,
     http::StatusCode,
     response::{IntoResponse, Response},
-    Json,
 };
 use serde_json::json;
-use anthropic::AnthropicError;
 
-#[derive(Debug)]
-#[derive(thiserror::Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum AppError {
     #[error("Database error: {0}")]
     DatabaseError(#[from] sqlx::Error),
@@ -26,8 +25,6 @@ pub enum AppError {
     #[error("Anthropic API error: {0:?}")]
     ProviderErrorAnthropic(#[from] AnthropicError),
 }
-
-
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
@@ -50,7 +47,5 @@ impl IntoResponse for AppError {
         (status, body).into_response()
     }
 }
-
-
 
 pub type AppResult<T> = Result<T, AppError>;

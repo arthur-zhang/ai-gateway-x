@@ -9,7 +9,7 @@ pub struct Session {
     pub id: String,         // UUID for internal use
     pub request_id: String, // Human-readable request ID
     pub raw_request_json: String,
-    pub model : String,
+    pub model: String,
     pub is_streaming: bool,
     pub token_usage: Usage,
     pub stop_reason: StopReason,

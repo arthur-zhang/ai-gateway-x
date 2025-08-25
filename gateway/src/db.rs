@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::{sqlite::SqlitePool, Row};
+use sqlx::{Row, sqlite::SqlitePool};
 
 use crate::thread::Session;
 
@@ -11,7 +11,7 @@ pub struct Database {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SessionRecord {
-    pub id: String, // UUID for internal use
+    pub id: String,                 // UUID for internal use
     pub request_id: Option<String>, // Human-readable request ID for UI display
     pub model: String,
     pub is_streaming: bool,
@@ -31,7 +31,7 @@ pub struct SessionRecord {
 impl Database {
     pub async fn new(database_url: &str) -> Result<Self, sqlx::Error> {
         let pool = SqlitePool::connect(database_url).await?;
-        
+
         Ok(Self { pool })
     }
 
@@ -114,7 +114,10 @@ impl Database {
         Ok(())
     }
 
-    pub async fn get_session(&self, session_id: &str) -> Result<Option<SessionRecord>, sqlx::Error> {
+    pub async fn get_session(
+        &self,
+        session_id: &str,
+    ) -> Result<Option<SessionRecord>, sqlx::Error> {
         let row = sqlx::query("SELECT * FROM sessions WHERE id = ?")
             .bind(session_id)
             .fetch_optional(&self.pool)
@@ -136,22 +139,36 @@ impl Database {
             response: row.try_get("response").ok(),
             http_req_headers: row.try_get("http_req_headers").ok(),
             http_resp_headers: row.try_get("http_resp_headers").ok(),
-            http_status_code: row.try_get::<i64, _>("http_status_code").ok().map(|v| v as u16),
-            created_at: row.try_get::<i64, _>("created_at")
+            http_status_code: row
+                .try_get::<i64, _>("http_status_code")
                 .ok()
-                .map(|ts| DateTime::from_timestamp_millis(ts).unwrap_or_default().with_timezone(&Utc))
+                .map(|v| v as u16),
+            created_at: row
+                .try_get::<i64, _>("created_at")
+                .ok()
+                .map(|ts| {
+                    DateTime::from_timestamp_millis(ts)
+                        .unwrap_or_default()
+                        .with_timezone(&Utc)
+                })
                 .unwrap_or_else(|| Utc::now()),
-            completed_at: row.try_get::<i64, _>("completed_at")
-                .ok()
-                .map(|ts| DateTime::from_timestamp_millis(ts).unwrap_or_default().with_timezone(&Utc)),
+            completed_at: row.try_get::<i64, _>("completed_at").ok().map(|ts| {
+                DateTime::from_timestamp_millis(ts)
+                    .unwrap_or_default()
+                    .with_timezone(&Utc)
+            }),
             status: row.try_get("status").unwrap_or("pending".to_string()),
         }))
     }
 
-    pub async fn get_sessions(&self, limit: Option<i64>, offset: Option<i64>) -> Result<Vec<SessionRecord>, sqlx::Error> {
+    pub async fn get_sessions(
+        &self,
+        limit: Option<i64>,
+        offset: Option<i64>,
+    ) -> Result<Vec<SessionRecord>, sqlx::Error> {
         let limit = limit.unwrap_or(100);
         let offset = offset.unwrap_or(0);
-        
+
         let rows = sqlx::query("SELECT * FROM sessions ORDER BY created_at DESC LIMIT ? OFFSET ?")
             .bind(limit)
             .bind(offset)
@@ -172,14 +189,24 @@ impl Database {
                 response: row.try_get("response").ok(),
                 http_req_headers: row.try_get("http_req_headers").ok(),
                 http_resp_headers: row.try_get("http_resp_headers").ok(),
-                http_status_code: row.try_get::<i64, _>("http_status_code").ok().map(|v| v as u16),
-                created_at: row.try_get::<i64, _>("created_at")
+                http_status_code: row
+                    .try_get::<i64, _>("http_status_code")
                     .ok()
-                    .map(|ts| DateTime::from_timestamp_millis(ts).unwrap_or_default().with_timezone(&Utc))
+                    .map(|v| v as u16),
+                created_at: row
+                    .try_get::<i64, _>("created_at")
+                    .ok()
+                    .map(|ts| {
+                        DateTime::from_timestamp_millis(ts)
+                            .unwrap_or_default()
+                            .with_timezone(&Utc)
+                    })
                     .unwrap_or_else(|| Utc::now()),
-                completed_at: row.try_get::<i64, _>("completed_at")
-                    .ok()
-                    .map(|ts| DateTime::from_timestamp_millis(ts).unwrap_or_default().with_timezone(&Utc)),
+                completed_at: row.try_get::<i64, _>("completed_at").ok().map(|ts| {
+                    DateTime::from_timestamp_millis(ts)
+                        .unwrap_or_default()
+                        .with_timezone(&Utc)
+                }),
                 status: row.try_get("status").unwrap_or("pending".to_string()),
             })
             .collect();
@@ -191,7 +218,7 @@ impl Database {
         let row = sqlx::query("SELECT COUNT(*) as count FROM sessions")
             .fetch_one(&self.pool)
             .await?;
-        
+
         Ok(row.try_get("count").unwrap_or(0))
     }
 }

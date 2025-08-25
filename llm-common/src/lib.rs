@@ -1,7 +1,7 @@
-use std::{fmt, io};
-use std::time::Duration;
 use http::StatusCode;
 use serde::{Deserialize, Serialize};
+use std::time::Duration;
+use std::{fmt, io};
 use thiserror::Error;
 use uuid::Uuid;
 
@@ -10,7 +10,7 @@ pub use role::*;
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Serialize, Deserialize)]
 pub struct LanguageModelToolUseId(String);
-impl From <String> for LanguageModelToolUseId {
+impl From<String> for LanguageModelToolUseId {
     fn from(id: String) -> Self {
         LanguageModelToolUseId(id)
     }
@@ -32,7 +32,6 @@ impl fmt::Display for LanguageModelProviderName {
         write!(f, "{}", self.0)
     }
 }
-
 
 /// A completion event from a language model.
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
@@ -59,7 +58,6 @@ pub enum LanguageModelCompletionEvent {
     },
     UsageUpdate(TokenUsage),
 }
-
 
 #[derive(Error, Debug)]
 pub enum LanguageModelCompletionError {
@@ -151,7 +149,6 @@ pub enum StopReason {
     ToolUse,
     Refusal,
 }
-
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

@@ -1,7 +1,7 @@
+use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
-use anyhow::{Result, Context};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Config {
@@ -42,10 +42,10 @@ impl Config {
         let content = tokio::fs::read_to_string(&path)
             .await
             .with_context(|| format!("Failed to read config file: {}", path.as_ref().display()))?;
-        
-        let config: Config = toml::from_str(&content)
-            .with_context(|| "Failed to parse config file")?;
-        
+
+        let config: Config =
+            toml::from_str(&content).with_context(|| "Failed to parse config file")?;
+
         Ok(config)
     }
 }
